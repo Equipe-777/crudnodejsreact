@@ -7,13 +7,14 @@ import {
   FormGroup,
   FormControl,
   FormLabel,
+  FormFile,
   Button,
   Alert,
-  Table
+  Table,
 } from "react-bootstrap";
-import Upload from './components/upload'
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
+import { cpfMask } from "./components/cpfMask.js";
 
 class App extends React.Component {
   constructor(props) {
@@ -31,45 +32,18 @@ class App extends React.Component {
   handleChange = (evt) => {
     this.setState({
       [evt.target.name]: evt.target.value,
+      cpf: cpfMask(evt.target.value),
     });
   };
-  
-  componentWillMount() {
+
+  componentDidMount() {
     this.fetchAllRecord();
   }
-
-  // add a record
-  addRecord = () => {
-    var myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
-
-    var body = JSON.stringify({ nome: this.state.nome, cpf: this.state.cpf});
-    fetch("http://localhost:3001/api/create", {
-      method: "POST",
-      headers: myHeaders,
-      body: body,
-    })
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        this.setState({
-          id: "",
-          nome: "",
-          cpf: "",
-          showAlert: true,
-          alertMsg: result.response,
-          alertType: "sucess",
-          update: false,
-        });
-        this.fetchAllRecord();
-      });
-  };
-
   // fetch all Records
   fetchAllRecord = () => {
     var headers = new Headers();
     headers.append("Content-Type", "application/json");
-    fetch("http://localhost:3001/api/view", {
+    fetch("http://localhost:3002/clientes/", {
       method: "GET",
       headers: headers,
     })
@@ -85,19 +59,72 @@ class App extends React.Component {
       });
   };
 
+  // -> Mudei o método de adicionar para um form/data, por isso não precisa mais do fetch com os setState
+
+  // // add a record
+  // addRecord = () => {
+  //   var myHeaders = new Headers();
+  //   myHeaders.append("Content-Type", "multipart/form-data; boundary=something");
+  //   const imagem_cliente = document.getElementById("imagem_cliente").files[0];
+  //   var body = JSON.stringify({ nome: this.state.nome, cpf: this.state.cpf });
+  //   fetch("http://localhost:3002/clientes/", {
+  //     method: "POST",
+  //     headers: myHeaders,
+  //     body: body + `${imagem_cliente}`,
+  //   })
+  //     .then((response) => response.json())
+  //     .then((result) => {
+  //       console.log(result);
+  //       this.setState({
+  //         id: "",
+  //         nome: "",
+  //         cpf: "",
+  //         showAlert: true,
+  //         alertMsg: result.response,
+  //         alertType: "sucess",
+  //         update: false,
+  //       });
+  //       this.fetchAllRecord();
+  //     });
+  // };
+
+  //    tentativa de submit do form com atualização do map (fetch com metodo get)
+  // sem ter que clicar no botão read e fazer a requisição get. -> fail
+  // acaba que a função fetchAllRecord é iniciada antes da validação do submit, não retornando
+  // o registro certo
+
+  // submitbutton = () => {
+  //   let button = document.getElementById("create-btn");
+  //   let input = document.getElementById("nome");
+  //   let cpf = document.getElementById("cpf");
+  //   let img = document.getElementById("imagem_cliente");
+  //   if (
+  //     input.checkValidity() &&
+  //     cpf.checkValidity() &&
+  //     img.checkValidity() === true
+  //   ) {
+  //     button.form.submit();
+        //<p> do código ganha classe fadeout (usar como msg de insert)
+  //   }
+  //   // else { alert("Preencha todos os campos!"); }
+  //   this.fetchAllRecord();
+  // };
+
   //view sigle data to edit
   editRecord = (id) => {
-    fetch("http://localhost:3001/api/view/" + id, {
+    fetch("http://localhost:3002/clientes/" + id, {
       method: "GET",
     })
       .then((response) => response.json())
       .then((result) => {
         console.log(result);
+
         this.setState({
           id: id,
           update: true,
           nome: result.response[0].nome,
           cpf: result.response[0].cpf,
+          imagem_cliente: result.response[0].imagem_cliente,
         });
       })
       .catch((error) => console.log("error", error));
@@ -113,7 +140,8 @@ class App extends React.Component {
       nome: this.state.nome,
       cpf: this.state.cpf,
     });
-    fetch("http://localhost:3001/api/update/", {
+
+    fetch("http://localhost:3002/clientes/", {
       method: "PUT",
       headers: myHeaders,
       body: body,
@@ -136,19 +164,46 @@ class App extends React.Component {
 
   //delete record
   deleteRecord = (id) => {
-    fetch("http://localhost:3001/api/delete/" + id, {
-      method: "DELETE",
-    })
-      .then((response) => response.json())
-      .then((result) => {
-        this.setState({
-          showAlert: true,
-          alertMsg: result.response,
-          alertType: "danger",
-        });
-        this.fetchAllRecord();
+    var confirm = window.confirm(
+      "Tem certeza que deseja apagar esse registro?"
+    );
+    if (confirm === true) {
+      fetch("http://localhost:3002/clientes/" + id, {
+        method: "DELETE",
       })
-      .catch((error) => console.log("error", error));
+        .then((response) => response.json())
+        .then((result) => {
+          this.setState({
+            showAlert: true,
+            alertMsg: result.response,
+            alertType: "danger",
+          });
+          this.fetchAllRecord();
+        })
+        .catch((error) => console.log("error", error));
+    }
+  };
+
+  //delete all records
+  deleteRecords = () => {
+    var confirm = window.prompt(
+      'Tem certeza que deseja apagar todos os registros? Digite "SIM" para confirmar'
+    );
+    if (confirm === "SIM" || confirm === "Sim" || confirm === "sim") {
+      fetch("http://localhost:3002/clientes/", {
+        method: "DELETE",
+      })
+        .then((response) => response.json())
+        .then((result) => {
+          this.setState({
+            showAlert: true,
+            alertMsg: result.response,
+            alertType: "danger",
+          });
+          this.fetchAllRecord();
+        })
+        .catch((error) => console.log("error", error));
+    }
   };
 
   render() {
@@ -170,7 +225,13 @@ class App extends React.Component {
           ) : null}
           {/* Insert Form */}
           <Row>
-            <Form className="formContent" enctype="multipart/form-data" action="http://localhost:3001/api/create" method="POST">
+            <Form
+              className="formContent"
+              encType="multipart/form-data"
+              action="http://localhost:3002/clientes/"
+              method="POST"
+              id="form"
+            >
               <h2 className="h2 fadeIn first">Cadastro de Clientes</h2>
               {/* <FormGroup className="fadeIn first">
                 <FormLabel className="formlabel">ID</FormLabel>
@@ -180,7 +241,9 @@ class App extends React.Component {
               <FormGroup className="fadeIn second">
                 <FormLabel className="formlabel">Nome</FormLabel>
                 <FormControl
+                  required
                   type="text"
+                  id="nome"
                   name="nome"
                   placeholder="Insira o Nome"
                   onChange={this.handleChange}
@@ -191,37 +254,72 @@ class App extends React.Component {
               <FormGroup className="fadeIn second" id="lastform">
                 <FormLabel className="formlabel">CPF</FormLabel>
                 <FormControl
+                  required
+                  minlength="14"
                   type="text"
+                  id="cpf"
                   name="cpf"
                   placeholder="Insira o CPF"
                   onChange={this.handleChange}
                   value={this.state.cpf}
+                  oninvalid="this.InvalidMsg(this)"
                 />
               </FormGroup>
-              
-              <input type="file" id="imagem_clientes" name="imagem_clientes" />
+              {/* <input
+                required
+                type="file"
+                className="fadeIn fourth"
+                id="imagem_cliente"
+                name="imagem_cliente"
+              /> */}
 
-              {/* <Upload /> */}
-              {this.state.update === true ? (
-                <Button className="button" onClick={this.updateRecord}>
-                  Update
-                </Button>
-              ) : (
+              <FormGroup controlId="formFileSm" className="">
+                <FormFile
+                  required
+                  accept="image/*"
+                  type="file"
+                  className="fadeIn fourth"
+                  id="imagem_cliente"
+                  name="imagem_cliente"
+                />
+              </FormGroup>
+
+              <div>
                 <Button
-
                   className="button fadeIn fourth"
-                  onClick={this.addRecord}
+                  id="edit-btn"
+                  onClick={this.fetchAllRecord}
                 >
-                  Criar
+                  Read
                 </Button>
-              )}
+                {this.state.update === true ? (
+                  <Button className="button" onClick={this.updateRecord}>
+                    Update
+                  </Button>
+                ) : (
+                  <Button
+                    type="submit"
+                    onClick={this.submitbutton}
+                    className="button fadeIn fourth"
+                    id="create-btn"
+                  >
+                    Create
+                  </Button>
+                )}
+                <Button
+                  className="button fadeIn fourth"
+                  id="delete-btn"
+                  onClick={this.deleteRecords}
+                >
+                  Delete all
+                </Button>
+              </div>
             </Form>
           </Row>
-
           {/*  All records */}
           <Row>
             <div className="general fadeIn fourth">
-              <Table hover striped responsive="sm" className="table">
+              <Table hover size="sm" striped responsive className="table">
                 <thead>
                   <tr>
                     <th scope="col">ID</th>
@@ -249,13 +347,14 @@ class App extends React.Component {
                           <div className="divimg">
                             <a
                               href={
-                                "http://localhost:3001/images" + record.imagem_cliente
+                                "http://localhost:3002/" + record.imagem_cliente
                               }
                               target="_newblank"
                             >
                               <img
                                 src={
-                                  "http://localhost:3001/images/213.jpg"
+                                  "http://localhost:3002/" +
+                                  record.imagem_cliente
                                 }
                                 alt="Imagem dos Clientes"
                               />
@@ -284,8 +383,7 @@ class App extends React.Component {
                 </tbody>
               </Table>
             </div>
-            <div className="container text-center">
-            </div>
+            <div className="container text-center"></div>
           </Row>
         </Container>
       </div>

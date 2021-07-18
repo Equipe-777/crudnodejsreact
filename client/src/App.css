@@ -36,8 +36,8 @@ h2 {
   -webkit-border-radius: 10px 10px 10px 10px;
   border-radius: 10px 10px 10px 10px;
   background: #fff;
-  width: 50%;
-  height: 300px;
+  width: 100%;
+  height: 310px;
   max-width: 450px;
   padding: 0px;
   margin-bottom: 5%;
@@ -59,8 +59,6 @@ h2 {
   text-align: center;
   text-decoration: none;
   text-transform: uppercase;
-  -webkit-box-shadow: 0 10px 30px 0 rgba(95,186,233,0.4);
-  box-shadow: 0 5px 30px 0 rgba(95,186,233,0.4);
   -webkit-border-radius: 5px 5px 5px 5px;
   border-radius: 5px 5px 5px 5px;
   -webkit-transition: all 0.3s ease-in-out;
@@ -68,6 +66,7 @@ h2 {
   -ms-transition: all 0.3s ease-in-out;
   -o-transition: all 0.3s ease-in-out;
   transition: all 0.3s ease-in-out;
+  margin: 25px 10px 0px 10px;
 }
 
 .button:active {
@@ -98,7 +97,6 @@ input[type=text] {
   transition: all 0.5s ease-in-out;
   -webkit-border-radius: 5px 5px 5px 5px;
   border-radius: 5px 5px 5px 5px;
-  margin-bottom: 5px;
 }
 
 input[type=text]:focus {
@@ -244,7 +242,7 @@ td {
   border-radius: 10px 10px 10px 10px;
   background: #fff;
   min-height: 150px;
-  max-width: 450px;
+  /* max-width: 450px; */
   position: relative;
   padding: 15px 0px 0px 0px;
   -webkit-box-shadow: 0 30px 60px 0 rgba(0,0,0,0.3);
@@ -254,11 +252,12 @@ td {
 .table {
   border-radius: 10px 10px 10px 10px;
   -webkit-border-radius: 10px 10px 10px 10px;
+  min-width: 418px;
 }
 
 .deleteicon{
   color: #ee6868;
-  margin-top: 20%;
+  margin-top: 12px;
 }
 .deleteicon:hover {
   color: #850a0a;
@@ -266,16 +265,16 @@ td {
 
 .editicon {
   color: #66ff00;
-  margin-top: 20%;
+  margin-top: 12px;
 }
 .editicon:hover {
   color: #07a321;
 }
 
 .p {
-  margin-top: 3%;
+  margin-top: 12px;
 }
-e
+
 svg.MuiSvgIcon-root {
   font-size: 1.8rem;
 }
@@ -292,7 +291,36 @@ svg.MuiSvgIcon-root {
 }
 
 img {
-  margin-top: 2px;
-  width: 35px;
-  height: 40px;
+  width: 40px;
+  height: 50px;
+  padding-bottom: 0px;
+  margin:1px 0px 0px;
+  -webkit-border-radius: 15px 15px 15px 15px;
+  border-radius: 15px 15px 15px 15px;
+}
+
+#delete-btn{
+  background-color: #ee6868;
+  border: red;
+  -webkit-box-shadow: 0 10px 30px 0 rgba(233, 104, 95, 0.4);
+  box-shadow: 0 5px 30px 0 rgba(233, 104, 95, 0.4);
+}
+#delete-btn:hover {
+  background-color: #850a0ae5;
+}
+
+#edit-btn {
+  background-color: #66ff00ea;
+  border: green;
+  -webkit-box-shadow: 0 10px 30px 0 rgba(100, 233, 95, 0.4);
+  box-shadow: 0 5px 30px 0 rgba(100, 233, 95, 0.4);
+  width: 100px;
+}
+#edit-btn:hover {
+  background-color: #07a321e8;
+}
+
+#create-btn {
+  -webkit-box-shadow: 0 10px 30px 0 rgba(95,186,233,0.4);
+  box-shadow: 0 5px 30px 0 rgba(95,186,233,0.4);
 }
